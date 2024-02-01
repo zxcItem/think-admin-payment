@@ -33,6 +33,7 @@ class InstallPayment extends Migrator
         $this->_create_payment_config();
         $this->_create_payment_record();
         $this->_create_payment_refund();
+        $this->_create_payment_address();
     }
 
     /**
@@ -198,6 +199,50 @@ class InstallPayment extends Migrator
             ->addIndex('create_time', ['name' => 'idx_payment_refund_create_time'])
             ->addIndex('refund_trade', ['name' => 'idx_payment_refund_refund_trade'])
             ->addIndex('refund_status', ['name' => 'idx_payment_refund_refund_status'])
+            ->create();
+
+        // 修改主键长度
+        $this->table($table)->changeColumn('id', 'integer', ['limit' => 11, 'identity' => true]);
+    }
+
+    /**
+     * 创建数据对象
+     * @class PaymentAddress
+     * @table payment_address
+     * @return void
+     */
+    private function _create_payment_address()
+    {
+
+        // 当前数据表
+        $table = 'payment_address';
+
+        // 存在则跳过
+        if ($this->hasTable($table)) return;
+
+        // 创建数据表
+        $this->table($table, [
+            'engine' => 'InnoDB', 'collation' => 'utf8mb4_general_ci', 'comment' => '插件-支付-地址',
+        ])
+            ->addColumn('unid', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '主账号ID'])
+            ->addColumn('type', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '默认状态(0普通,1默认)'])
+            ->addColumn('idcode', 'string', ['limit' => 180, 'default' => '', 'null' => true, 'comment' => '身体证证号'])
+            ->addColumn('idimg1', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '身份证正面'])
+            ->addColumn('idimg2', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '身份证反面'])
+            ->addColumn('user_name', 'string', ['limit' => 100, 'default' => '', 'null' => true, 'comment' => '收货人姓名'])
+            ->addColumn('user_phone', 'string', ['limit' => 20, 'default' => '', 'null' => true, 'comment' => '收货人手机'])
+            ->addColumn('region_prov', 'string', ['limit' => 100, 'default' => '', 'null' => true, 'comment' => '地址-省份'])
+            ->addColumn('region_city', 'string', ['limit' => 100, 'default' => '', 'null' => true, 'comment' => '地址-城市'])
+            ->addColumn('region_area', 'string', ['limit' => 100, 'default' => '', 'null' => true, 'comment' => '地址-区域'])
+            ->addColumn('region_addr', 'string', ['limit' => 500, 'default' => '', 'null' => true, 'comment' => '地址-详情'])
+            ->addColumn('deleted', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '删除状态(1已删,0未删)'])
+            ->addColumn('create_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '创建时间'])
+            ->addColumn('update_time', 'datetime', ['default' => NULL, 'null' => true, 'comment' => '更新时间'])
+            ->addIndex('type', ['name' => 'idx_payment_address_type'])
+            ->addIndex('unid', ['name' => 'idx_payment_address_unid'])
+            ->addIndex('deleted', ['name' => 'idx_payment_address_deleted'])
+            ->addIndex('create_time', ['name' => 'idx_payment_address_create_time'])
+            ->addIndex('user_phone', ['name' => 'idx_payment_address_user_phone'])
             ->create();
 
         // 修改主键长度
