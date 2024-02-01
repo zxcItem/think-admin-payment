@@ -4,9 +4,13 @@ declare (strict_types=1);
 
 namespace app\payment;
 
+use app\payment\model\PaymentRecord;
 use app\payment\service\Payment;
+use app\shop\model\ShopOrder;
+use app\shop\service\UserOrder;
 use think\admin\extend\CodeExtend;
 use think\admin\Plugin;
+use think\Request;
 
 /**
  * 组件注册服务
@@ -41,6 +45,40 @@ class Service extends Plugin
             } catch (\Exception|\Error $exception) {
                 return 'Error: ' . $exception->getMessage();
             }
+        });
+
+        // 注册支付审核事件
+        $this->app->event->listen('PluginPaymentAudit', function (PaymentRecord $payment) {
+            $this->app->log->notice("Event PluginPaymentAudit {$payment->getAttr('order_no')}");
+            $order = ShopOrder::mk()->where(['order_no' => $payment->getAttr('order_no')])->findOrEmpty();
+            $order->isExists() && UserOrder::payment($order, $payment);
+        });
+
+        // 注册支付拒审事件
+        $this->app->event->listen('PluginPaymentRefuse', function (PaymentRecord $payment) {
+            $this->app->log->notice("Event PluginPaymentRefuse {$payment->getAttr('order_no')}");
+            $order = ShopOrder::mk()->where(['order_no' => $payment->getAttr('order_no')])->findOrEmpty();
+            $order->isExists() && UserOrder::payment($order, $payment);
+        });
+
+        // 注册支付完成事件
+        $this->app->event->listen('PluginPaymentSuccess', function (PaymentRecord $payment) {
+            $this->app->log->notice("Event PluginPaymentSuccess {$payment->getAttr('order_no')}");
+            $order = ShopOrder::mk()->where(['order_no' => $payment->getAttr('order_no')])->findOrEmpty();
+            $order->isExists() && UserOrder::payment($order, $payment);
+        });
+
+        // 注册支付取消事件
+        $this->app->event->listen('PluginPaymentCancel', function (PaymentRecord $payment) {
+            $this->app->log->notice("Event PluginPaymentCancel {$payment->getAttr('order_no')}");
+            $order = ShopOrder::mk()->where(['order_no' => $payment->getAttr('order_no')])->findOrEmpty();
+            $order->isExists() && UserOrder::payment($order, $payment);
+        });
+
+        // 注册订单确认事件
+        $this->app->event->listen('PluginPaymentConfirm', function (array $data) {
+            $this->app->log->notice("Event PluginPaymentConfirm {$data['order_no']}");
+
         });
     }
 
