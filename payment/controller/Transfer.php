@@ -145,7 +145,7 @@ class Transfer extends Controller
             if (in_array($data['status'], [0, 1, 2, 3])) {
                 if ($data['status'] == 0){
                     Balance::cancel($data['code']);
-                    Balance::recount($this->unid);
+                    Balance::recount($find->unid);
                 }
                 $data['last_at'] = date('Y-m-d H:i:s');
             } elseif ($data['status'] == 4) {
