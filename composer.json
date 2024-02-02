@@ -1,8 +1,8 @@
 {
     "type": "think-admin-plugin",
-    "name": "xiaochao/think-plugs-payment",
+    "name": "xiaochao/think-admin-payment",
     "license": "MIT",
-    "description": "Payment for ThinkAdmin",
+    "description": "ThinkAdminPayment for ThinkAdmin",
     "authors": [
         {
             "name": "叶落无痕",
