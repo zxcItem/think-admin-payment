@@ -7,6 +7,7 @@ namespace app\payment;
 use app\payment\model\PaymentRecord;
 use app\payment\service\Payment;
 use app\shop\model\ShopOrder;
+use app\payment\command\Trans;
 use app\shop\service\UserOrder;
 use think\admin\extend\CodeExtend;
 use think\admin\Plugin;
@@ -37,6 +38,8 @@ class Service extends Plugin
      */
     public function register(): void
     {
+        $this->commands([Trans::class]);
+
         // 注册支付通知路由
         $this->app->route->any('/plugin-payment-notify/:vars', function (Request $request) {
             try {
